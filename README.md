@@ -2,21 +2,21 @@
 
 ## Project Overview
 
-WanderWays Invoice Extractor is a Python-based project designed to process travel invoice PDF files and extract useful invoice information. The project provides a simple foundation for automating travel invoice data extraction and reducing manual data entry.
+WanderWays Invoice Extractor is a Python-based project for processing travel invoice PDF files and extracting useful invoice information. It provides a simple foundation for automating travel invoice data extraction and reducing manual data entry.
 
 ## Project Structure
 
-* `src/` - Contains the Python source code.
-* `samples/` - Contains sample travel invoice PDF files for testing.
-* `docs/` - Contains project documentation, architecture, and setup information.
+- `src/` - Python source code for the invoice extractor
+- `samples/` - Sample travel invoice PDF files for testing
+- `docs/` - Project documentation, architecture, and setup information
 
 ## Prerequisites
 
-Before running the project, make sure the following software is installed:
+Before running the project, install the following:
 
-* Python 3.x
-* Git
-* Visual Studio Code (recommended)
+- Python 3.x
+- Git
+- Visual Studio Code (recommended)
 
 ## Setup Instructions
 
@@ -29,31 +29,30 @@ cd wanderways-invoice-extractor
 
 ### 2. Run the Project
 
-Run the main Python program using:
+The current source code can be run with Python:
 
 ```bash
 py src/main.py
 ```
 
-If the `python` command works on your system, you can also use:
+On systems where the `python` command works, you can also use:
 
 ```bash
 python src/main.py
 ```
 
-### 3. Use Sample Invoices
+### 3. Test with Sample Invoices
 
-Sample travel invoice PDFs are available in the `samples/` folder. These files can be used for testing and development.
+Sample travel invoices are available in the `samples/` folder. These PDFs can be used as input examples for testing and development.
 
 ## Main Features
 
-* Travel invoice PDF processing
-* Sample travel invoices for testing
-* Organized project structure
-* Documentation and setup guide
-* Python-based implementation
+- Travel invoice PDF processing
+- Sample invoice documents for testing
+- Organized project structure
+- Project documentation
+- Python-based implementation
 
 ## Goal
 
-The goal of this project is to provide a simple and organized starting point for automated travel invoice data extraction and reduce the effort required for manual invoice processing.
-# Travel invoice data extraction tool
+The goal of this project is to provide a simple and organized starting point for automated travel invoice data extraction.
