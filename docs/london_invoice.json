@@ -1,0 +1,9 @@
+{
+    "invoice_number": "WW-LON-001",
+    "travel_date": "20 September 2026",
+    "return_date": "27 September 2026",
+    "currency": "$",
+    "total_amount": "2178.00",
+    "payment_status": "Paid",
+    "payment_method": "Credit Card"
+}
