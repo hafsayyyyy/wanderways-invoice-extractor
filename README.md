@@ -72,3 +72,54 @@ The tests use the real London sample PDF for the PDF extraction path and mock th
 ## Task 2 completion note
 
 I implemented a reusable invoice-extraction prompt and matching JSON Schema, connected PDF text extraction to the OpenAI API, validated model output, and added error logging with a safe JSON fallback. The main challenge was keeping the model response strictly schema-compliant while making tests repeatable without requiring a live API call. Live API execution requires a valid OpenAI API key and was intentionally kept out of automated tests.
+
+## Invoice Validation
+
+The extracted invoice data is validated before it is accepted by the system. Validation is handled by the `src/validator.py` module using JSON Schema and additional validation checks.
+
+### Validation Rules
+
+The invoice data must follow these rules:
+
+* Required fields must be present.
+* `invoice_number` must be provided.
+* `travel_date` must be provided and use the ISO date format `YYYY-MM-DD`.
+* `return_date` must be provided and use the ISO date format `YYYY-MM-DD`.
+* `vendor_name` must be a non-empty string.
+* `total_amount` must be a numeric value.
+* `total_amount` cannot be negative.
+* Dates must contain valid calendar dates.
+* Extracted invoice data must match the defined validation schema.
+
+### Error Handling
+
+If the invoice data is invalid, the validator returns `False` along with clear error messages describing the validation problem.
+
+Errors can identify issues such as:
+
+* Missing required fields
+* Invalid date formats
+* Invalid calendar dates
+* Incorrect data types
+* Empty vendor names
+* Invalid or negative amounts
+
+If the invoice passes all validation rules, the validator returns `True` with no validation errors.
+
+### Validation Tests
+
+Automated validation tests are included in `tests/test_validator.py`.
+
+The tests cover:
+
+* Valid invoice data
+* Missing required fields
+* Invalid date formats
+* Invalid amounts
+* Empty required values
+
+Run the tests using:
+
+```bash
+py -m pytest -q
+```
