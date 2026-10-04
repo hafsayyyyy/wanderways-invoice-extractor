@@ -70,10 +70,44 @@ def validate_invoice(data):
                     f"{field} must use ISO format YYYY-MM-DD."
                 )
 
+    # Check travel date is not after return date
+    if (
+        isinstance(data.get("travel_date"), str)
+        and isinstance(data.get("return_date"), str)
+    ):
+        try:
+            travel_date = datetime.strptime(
+                data["travel_date"], "%Y-%m-%d"
+            )
+            return_date = datetime.strptime(
+                data["return_date"], "%Y-%m-%d"
+            )
+
+            if travel_date > return_date:
+                errors.append(
+                    "travel_date cannot be after return_date."
+                )
+        except ValueError:
+            pass
+
+    # Check vendor name is not empty
+    if "vendor_name" in data:
+        if isinstance(data["vendor_name"], str):
+            if not data["vendor_name"].strip():
+                errors.append(
+                    "vendor_name cannot be empty."
+                )
+
     # Check total amount is numeric
     if "total_amount" in data:
         if not isinstance(data["total_amount"], (int, float)):
-            errors.append("total_amount must be a numeric value.")
+            errors.append(
+                "total_amount must be a numeric value."
+            )
+        elif isinstance(data["total_amount"], bool):
+            errors.append(
+                "total_amount must be a numeric value."
+            )
 
     return len(errors) == 0, errors
 
@@ -90,7 +124,8 @@ def validate_json(json_text):
         data = json.loads(json_text)
     except json.JSONDecodeError as error:
         return False, [
-            f"Invalid JSON: {error.msg} at line {error.lineno}, column {error.colno}."
+            f"Invalid JSON: {error.msg} at line "
+            f"{error.lineno}, column {error.colno}."
         ]
 
     return validate_invoice(data)

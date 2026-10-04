@@ -1,0 +1,180 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderWays Invoice Extractor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #12355b;
+        }
+
+        header {
+            background: #12355b;
+            color: white;
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 28px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px #00000012;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin: 20px 0;
+            padding: 14px;
+            border: 1px dashed #4da3ff;
+            border-radius: 8px;
+        }
+
+        button {
+            background: #12355b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 13px 22px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0b2545;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        #status {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        pre {
+            background: #f4f7fb;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .hint {
+            color: #555;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>WanderWays</h1>
+        <p>Travel Invoice Extractor</p>
+    </header>
+
+    <main>
+        <h2>Upload Your Invoice</h2>
+        <p>Select a travel invoice in PDF format to extract its information.</p>
+
+        <form id="upload-form">
+            <label for="invoice-file">Choose PDF invoice</label>
+            <input
+                type="file"
+                id="invoice-file"
+                name="file"
+                accept=".pdf,application/pdf"
+                required
+            >
+            <p class="hint">PDF files only.</p>
+            <button type="submit" id="submit-button">Extract Invoice</button>
+        </form>
+
+        <section id="status" role="status" aria-live="polite"></section>
+        <section id="results" hidden>
+            <h2>Extraction Results</h2>
+            <pre id="result-data"></pre>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const fileInput = document.getElementById("invoice-file");
+        const statusBox = document.getElementById("status");
+        const results = document.getElementById("results");
+        const resultData = document.getElementById("result-data");
+        const submitButton = document.getElementById("submit-button");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const file = fileInput.files[0];
+
+            if (!file) {
+                statusBox.textContent = "Please select a PDF file.";
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith(".pdf")) {
+                statusBox.textContent = "Only PDF files are allowed.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            submitButton.disabled = true;
+            statusBox.textContent = "Processing invoice...";
+            results.hidden = true;
+
+            try {
+                const response = await fetch("/extract", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                results.hidden = false;
+                resultData.textContent = JSON.stringify(data, null, 2);
+
+                if (!response.ok || data.success === false) {
+                    statusBox.textContent =
+                        "Invoice processing failed. See the response below.";
+                } else if (data.valid) {
+                    statusBox.textContent =
+                        "Invoice processed and validation passed.";
+                } else {
+                    statusBox.textContent =
+                        "Processing completed, but validation found missing or invalid fields.";
+                }
+            } catch (error) {
+                statusBox.textContent =
+                    "Could not connect to the server. Make sure Flask is running.";
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+```

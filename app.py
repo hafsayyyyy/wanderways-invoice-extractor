@@ -2,7 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 from src.invoice_extractor import extract_invoice_data
 from src.validator import validate_invoice
@@ -14,16 +14,17 @@ ALLOWED_EXTENSIONS = {".pdf"}
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({
-        "message": "WanderWays Invoice Extractor",
-        "status": "running"
-    })
+    """Display the invoice upload web page."""
+    return render_template("index.html")
 
 
 @app.route("/extract", methods=["POST"])
 def extract_invoice():
+    """Upload a PDF invoice, extract its data, and validate the result."""
+
     if "file" not in request.files:
         return jsonify({
+            "success": False,
             "error": "No PDF file was uploaded."
         }), 400
 
@@ -31,6 +32,7 @@ def extract_invoice():
 
     if not uploaded_file.filename:
         return jsonify({
+            "success": False,
             "error": "No file selected."
         }), 400
 
@@ -38,6 +40,7 @@ def extract_invoice():
 
     if extension not in ALLOWED_EXTENSIONS:
         return jsonify({
+            "success": False,
             "error": "Only PDF files are allowed."
         }), 400
 
@@ -53,6 +56,30 @@ def extract_invoice():
 
         extracted_data = extract_invoice_data(temp_path)
 
+        required_extraction_fields = [
+            "invoice_date",
+            "total_amount",
+            "vendor_name",
+            "travel_dates",
+            "booking_reference"
+        ]
+
+        extraction_failed = all(
+            extracted_data.get(field) in (None, [], "")
+            for field in required_extraction_fields
+        )
+
+        if extraction_failed:
+            return jsonify({
+                "success": False,
+                "error": (
+                    "Invoice extraction failed. "
+                    "Please check your OpenAI API key, "
+                    "API credits, or model configuration."
+                ),
+                "data": extracted_data
+            }), 500
+
         is_valid, errors = validate_invoice(extracted_data)
 
         return jsonify({
@@ -60,19 +87,28 @@ def extract_invoice():
             "valid": is_valid,
             "data": extracted_data,
             "validation_errors": errors
-        })
+        }), 200
 
-    except Exception as exc:
+    except Exception:
         app.logger.exception("Invoice processing failed")
 
         return jsonify({
             "success": False,
-            "error": str(exc)
+            "error": (
+                "Invoice processing failed. "
+                "Please check the server logs."
+            )
         }), 500
 
     finally:
         if temp_path and os.path.exists(temp_path):
-            os.remove(temp_path)
+            try:
+                os.remove(temp_path)
+            except OSError:
+                app.logger.warning(
+                    "Could not delete temporary file: %s",
+                    temp_path
+                )
 
 
 if __name__ == "__main__":
