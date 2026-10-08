@@ -4,3 +4,5 @@ openai>=1.40.0
 jsonschema>=4.23.0
 pytest>=8.0.0
 Flask>=3.0.0
+python-dotenv>=1.0.0
+gunicorn>=23.0.0
